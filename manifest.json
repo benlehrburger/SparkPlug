@@ -3,6 +3,7 @@
     "version": "1.0",
     "description": "Hook up your Gmail to Herrmann's HBDI dashboard",
     "permissions": ["activeTab", "declarativeContent", "storage"],
+    "options_page": "options.html",
     "background": {
       "scripts": ["background.js"],
       "persistent": false
