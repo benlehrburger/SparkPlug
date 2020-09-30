@@ -2,5 +2,10 @@
     "name": "Herrmann SparkPlug",
     "version": "1.0",
     "description": "Hook up your Gmail to Herrmann's HBDI dashboard",
+    "permissions": ["storage"],
+    "background": {
+      "scripts": ["background.js"],
+      "persistent": false
+    },
     "manifest_version": 2
   }
