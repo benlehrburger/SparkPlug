@@ -1,6 +1,6 @@
   {
-    "name": "Getting Started Example",
+    "name": "Herrmann SparkPlug",
     "version": "1.0",
-    "description": "Build an Extension!",
+    "description": "Hook up your Gmail to Herrmann's HBDI dashboard",
     "manifest_version": 2
   }
