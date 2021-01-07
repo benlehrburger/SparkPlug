@@ -19,8 +19,8 @@ Promise.all([
 
 				// Add SparkPlug action box on click
 				let actionsBox = document.createElement('div');
-				actionsBox.style = 'width: 280px; height: 538px; position: absolute; z-index: 2000000000; background-color: #f6f8ff; border-radius: 8px; bottom: 0; overflow-x: hidden; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);';
 				actionsBox.id = 'actionsBox';
+				actionsBox.style = 'width: 280px; height: 80vh; position: absolute; z-index: 2000000000; background-color: #f6f8ff; border-radius: 8px; bottom: 0; overflow-x: hidden; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);';
 				document.body.prepend(actionsBox);
 
 				/*
@@ -31,7 +31,8 @@ Promise.all([
 
 					// Make login container
 					let login = document.createElement('div');
-					login.style = 'width: 90%; padding-left: 14px; font-size: 20px; padding-top: 125px; padding-bottom: 10px;';
+					login.style = 'width: 90%; padding-left: 14px; font-size: 20px;';
+					login.style.paddingTop = 17 + "vh";
 					login.id = 'login';
 					login.innerHTML = 'Sign in to the Thinker Portal';
 					actionsBox.appendChild(login);
@@ -183,11 +184,13 @@ Promise.all([
 						return tableContain;
 					};
 
-					function renderProfile(scoreData) {
+					function renderProfile(scoreData, dimensions, padding) {
 						
 						// Make Herrmann Profile
 						let containProfile = document.createElement('div');
-						containProfile.style = 'width: 260px; height: 260px; position: relative; display: flex; justify-content: center; align-items: center;';
+						containProfile.style = 'position: relative; display: flex; justify-content: center; align-items: center;';
+						containProfile.style.height = dimensions + "px";
+						containProfile.style.width = dimensions + "px";
 
 						// Quadrants
 						let topRight = document.createElement('div');
@@ -223,8 +226,10 @@ Promise.all([
 
 						// Ticks
 						var t;
-						var xCoordinate = -230;
-						var yCoordinate = 20;
+
+						var xCoordinate = dimensions * -0.8846;
+						var yCoordinate = dimensions * 0.0769;
+						var multiplier = dimensions * 3.846;
 						let ticks = [];
 						for (t = 1; t <= 27; t++) {
 							let xTick = document.createElement('div');
@@ -232,7 +237,7 @@ Promise.all([
 							xTick.style.transform = 'rotate(90deg)';
 							xTick.style.transform += "translateX(" + xCoordinate + "%)";
 							xTick.style.transform += "translateY(" + yCoordinate + "%)";
-							xCoordinate += 1000;
+							xCoordinate += multiplier;
 							ticks.push(xTick);
 						};
 						var x;
@@ -261,13 +266,16 @@ Promise.all([
 						var axe = hyp / Math.sqrt(2);
 						var halfAxis = axe/2;
 
+
 						function lesserQuad(score) {
 							var buffer = 2;
-							return (halfAxis - pythag(score) + buffer);
+							let newScore = score/(260 / dimensions);
+							return (halfAxis - pythag(newScore) + buffer);
 						}
 
 						function greaterQuad(score) {
-							return (halfAxis + pythag(score));
+							let newScore = score/(260 / dimensions);
+							return (halfAxis + pythag(newScore));
 						}
 
 						let canvas = document.createElement('canvas');
@@ -292,7 +300,7 @@ Promise.all([
 						normal.lineTo(lesserQuad(B), greaterQuad(B));
 						normal.lineTo(greaterQuad(C), greaterQuad(C));
 						normal.lineTo(greaterQuad(D), lesserQuad(D));
-						normal.lineWidth = 2;
+						normal.lineWidth = dimensions / 100;
 						normal.closePath();
 						normal.stroke();
 
@@ -303,37 +311,195 @@ Promise.all([
 						underPressure.lineTo(lesserQuad(BUP), greaterQuad(BUP));
 						underPressure.lineTo(greaterQuad(CUP), greaterQuad(CUP));
 						underPressure.lineTo(greaterQuad(DUP), lesserQuad(DUP));
-						underPressure.setLineDash([6, 8]);
-						underPressure.lineWidth = 1;
+						let beginning = dimensions / 40;
+						let end = dimensions / 30
+						underPressure.setLineDash([beginning, end]);
+						underPressure.lineWidth = dimensions / 200;
 						underPressure.closePath();
 						underPressure.stroke();
 
 						containPoly.appendChild(canvas);
 
 						let containProf = document.createElement('div');
-						containProf.style = 'width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;';
+						containProf.style = 'display: flex; justify-content: center; align-items: center; flex-direction: column;';
+						containProf.style.height = dimensions + "px";
+						containProf.style.width = dimensions + "px";
+						containProf.style.paddingLeft = padding + "px";
 						containProf.appendChild(containProfile);
 
 						return containProf;
 					}
+
+					function radarChart(scores, dimensions) {
+						let container = document.createElement('div');
+						container.style = 'position: relative; display: flex; justify-content: center; align-items: center;';
+						container.style.height = dimensions + "px";
+						container.style.width = dimensions + "px";
+
+						function pickColor(show, element, color) {
+							if (show == 'yes') {
+								element.style.background = color;
+							} else {
+								element.style.background = 'rgba(255, 255, 255, 0.0)';
+							}
+							return element.style.background;
+						}
+						function quadrant(quad, size, show) {
+							let slice = document.createElement('div');
+							slice.style.width = size + "px";
+							slice.style.height = size + "px";
+							if (quad == 'A') {
+								slice.style.background = pickColor(show, slice, '#2BC0F0');
+								slice.style.borderRadius = '100% 0 0 0';
+								slice.style.float = 'left';
+							}
+							if (quad == 'B') {
+								slice.style.background = pickColor(show, slice, '#56BC7A');
+								slice.style.borderRadius = '0 0 0 100%';
+								slice.style.float = 'left';
+							}
+							if (quad == 'C') {
+								slice.style.background = pickColor(show, slice, '#EF3C50');
+								slice.style.borderRadius = '0 0 100% 0';
+								slice.style.float = 'right';
+							}
+							if (quad == 'D') {
+								slice.style.background = pickColor(show, slice, '#FDD531');
+								slice.style.borderRadius = '0 100% 0 0';
+								slice.style.float = 'right';
+							}
+							return slice;
+						}
+						let quartileContainer = document.createElement('div');
+						quartileContainer.style = 'width: 100%; height: 100% position: absolute;';
+						container.appendChild(quartileContainer);
+
+						function makeSlices(level, show) {
+							let quartile = document.createElement('div');
+							quartile.style = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);';
+							quartile.style.width = 125-level*25 + "%";
+							quartile.style.height = 125-level*25 + "%";
+							let size;
+							if (level == 1) {
+								size = dimensions/2;
+							} else if (level == 2) {
+								size = (dimensions*3)/8;
+							} else if (level == 3) {
+								size = dimensions/4;
+							} else if (level == 4) {
+								size = dimensions/8;
+							}
+							quartile.appendChild(quadrant('A', size, show[0]));
+							quartile.appendChild(quadrant('D', size, show[3]));
+							quartile.appendChild(quadrant('B', size, show[1]));
+							quartile.appendChild(quadrant('C', size, show[2]));
+							quartileContainer.appendChild(quartile);
+						}
+						function showOrNot(score) {
+							let show;
+							if (score < 33) {
+								show = ['no', 'no', 'no', 'yes'];
+							} else if (score >= 33 && score < 66) {
+								show = ['no', 'no', 'yes', 'yes'];
+							} else if (score >= 66 && score < 99) {
+								show = ['no', 'yes', 'yes', 'yes'];
+							} else {
+								show = ['yes', 'yes', 'yes', 'yes'];
+							}
+							return show;
+						}
+
+						let level1 = [];
+						let level2 = [];
+						let level3 = [];
+						let level4 = [];
+						let AScores = showOrNot(scores[0]);
+						let BScores = showOrNot(scores[1]);
+						let CScores = showOrNot(scores[2]);
+						let DScores = showOrNot(scores[3]);
+
+						function arrangeQuarters(level, index) {
+							level.push(AScores[index]);
+							level.push(BScores[index]);
+							level.push(CScores[index]);
+							level.push(DScores[index]);
+							return level
+						}
+						makeSlices(1, arrangeQuarters(level1, 0))
+						makeSlices(2, arrangeQuarters(level2, 1))
+						makeSlices(3, arrangeQuarters(level3, 2))
+						makeSlices(4, arrangeQuarters(level4, 3))
+
+						let ripple1 = document.createElement('div');
+						ripple1.style = 'width: 25%; height: 25%; background: none; border: 1px solid rgba(255, 255, 255, .5); border-radius: 50%; position: absolute; margin: 0; top: 50%; left: 50%; transform: translate(-50%, -50%);';
+						let ripple2 = document.createElement('div');
+						ripple2.style = 'width: 50%; height: 50%; background: none; border: 1px solid rgba(255, 255, 255, .5); border-radius: 50%; position: absolute; margin: 0; top: 50%; left: 50%; transform: translate(-50%, -50%);';
+						let ripple3 = document.createElement('div');
+						ripple3.style = 'width: 75%; height: 75%; background: none; border: 1px solid rgba(255, 255, 255, .5); border-radius: 50%; position: absolute; margin: 0; top: 50%; left: 50%; transform: translate(-50%, -50%);';
+						quartileContainer.appendChild(ripple1);
+						quartileContainer.appendChild(ripple2);
+						quartileContainer.appendChild(ripple3);
+
+						return container;
+					}
 					
+					/*
+						REPLACE URL WITH PROPER ENDPOINT URL TO FETCH USER PROFILES FROM HBDI DATABASE
+						
+						Pass this function the email handle of an email's recipients
+						Access the email as follows:
+
+						recipients[i].emailAddress
+
+						Where recipients is the array of recipients instantiated on line 99
+						mailAddress is a method provided by InboxSDK
+						and 'i' is an index in the array of email recipients
+
+						Variable 'ENV' changes the endpoint environment
+					*/
+					
+					/*
+					const ENV = 'dev';
+					function getProfile() {
+						//console.log(email);
+						//let encodedEmail = encodeURIComponent(email);
+						let response;
+						fetch(`https://journey.${ENV}.herrmannsolutions.net/thinker/api/profile/for_sparkplug.json?email=${'asdf%2Blech@thinkherrmann.com'}`, {credentials: 'include',}).then(r => {r = response});
+						console.log(response.json())
+						return response.json();
+					};
+					console.log(getProfile());
+					*/
+
 					// Filter through email recipients and pull name and email for each
-					let div = document.createElement('div');
+					let noProfileContainer = document.createElement('div');
 					// if no recipients of the email ...
 					if (recipients.length == 0) {
-						div.style = 'text-align: center; padding-top: 190px;';
+						noProfileContainer.style = 'text-align: center;';
+						noProfileContainer.style.paddingTop = 25 + "vh";
 						let none = document.createElement('p');
 						none.innerHTML = 'Add email recipients to view profiles.';
 						none.style = 'font-size: 14px; text-align: center;';
-						div.innerHTML += 'No profiles to show!';
-						div.appendChild(none);
-						spark.prepend(div);
+						noProfileContainer.innerHTML += 'No profiles to show!';
+						noProfileContainer.appendChild(none);
+						spark.prepend(noProfileContainer);
 					} 
 					// if recipients of the email ...
 					else {
 						let allProfiles = [];
 
-						// Create mock profile scores
+						/*  
+							TO DELETE ONCE CONNECTED TO HBDI DATABASE
+
+							The makeProfile() function creates a mock profile, returning an array
+							Anywhere makeProfile() is called, replace with an array of the following:
+
+							[Profile Scores A, B, C, D, Under Pressure Scores A, B, C, D, Preference Codes A, B, C, D]
+
+							These values will come from the getProfile() function on line 463
+							Which returns the requested user profile
+						*/
+
 						function makeProfile() {
 							let userProfile = [];
 							let userUnderPressure = [];
@@ -372,11 +538,24 @@ Promise.all([
 							return prefCode;
 						}
 
-						// Create button to take user to shared profile on Axon portal
+						/* 
+							TO AMMEND WHEN HOOKED UP TO HBDI DATABASE
+							
+							This function creates a button to take user to shared profile on Axon portal
+							Pass this function the URL to the users' shared profile from the getProfile() function
+							Replace URL found on like 563
+						*/	
+							
 						function renderShareButton() {
 							let sharedProfile = document.createElement('div');
 							sharedProfile.style = 'height: 30px; width: 200px; border-radius: 8px; background-color: #ffffff; border: 1px solid #224264; position: relative; text-align: center; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19); text-align: center; font-size: 16px; cursor: pointer; display: flex; justify-content: center; align-items: center;';
 							sharedProfile.innerHTML = 'View Shared Profile';
+							sharedProfile.addEventListener("mouseover", function() {
+								sharedProfile.style.backgroundColor = "#e8e9f5";
+							})
+							sharedProfile.addEventListener("mouseout", function() {
+								sharedProfile.style.backgroundColor = "#ffffff";
+							})
 							let containButton = document.createElement('div');
 							containButton.style = 'width: 200px; height: 30px; position: relative; cursor: pointer; margin-left: 30px; margin-top: 25px; margin-bottom: 15px;';
 							containButton.appendChild(sharedProfile);
@@ -436,13 +615,14 @@ Promise.all([
 							// Render table and profile above recipient list
 							let containProfile = document.createElement('div');
 							containProfile.style = 'padding-bottom: 20px;';
-							containProfile.appendChild(renderProfile(composite));
+							containProfile.appendChild(renderProfile(composite, 260, 10));
 							spark.prepend(containProfile);
+
 							let containTable = document.createElement('div');
 							containTable.style = 'padding-left: 15px;';
 							let compositeText = document.createElement('div');
 							compositeText.innerHTML = 'Group Profile';
-							compositeText.style = 'font-size: 20px; padding-left: 63px; padding-top: 18px; padding-bottom: 22px;';
+							compositeText.style = 'font-size: 20px; padding-left: 63px; padding-top: 8%; padding-bottom: 22px;';
 							containTable.prepend(compositeText);
 							containTable.appendChild(renderTable(composite))
 							spark.prepend(containTable);
@@ -453,7 +633,7 @@ Promise.all([
 							let profContain = document.createElement('div');
 							profContain.style = 'display: flex; flex-direction: column; align-items: center; justify-content: center;';
 							let profileName = document.createElement('div');
-							profileName.style = 'font-size: 20px; padding-top: 10px; padding-bottom: 15px;';
+							profileName.style = 'font-size: 20px; padding-top: 8%; padding-bottom: 22px;';
 							if (recipients[0].name != null) {
 								profileName.innerHTML = recipients[0].name;
 							} else {
@@ -463,7 +643,7 @@ Promise.all([
 							let table = document.createElement('div');
 							table.appendChild(renderTable(mockProf));
 							profContain.appendChild(table);
-							profContain.appendChild(renderProfile(mockProf));
+							profContain.appendChild(renderProfile(mockProf, 260, 0));
 							let share = document.createElement('div');
 							share.style = 'margin-right: 35px;';
 							share.appendChild(renderShareButton());
@@ -474,37 +654,57 @@ Promise.all([
 						else {
 							var i;
 							for (i = 0; i < recipients.length; i++) {
+								// Make mock profile
+								let mockProfile = makeProfile();
+								let radarProfile = mockProfile.slice(0,3);
 								
 								// Create list item for each email recipient
 								let accordion = document.createElement('button');
-								accordion.style = 'cursor: pointer; padding: 10px; width: 100%; background: #f6f8ff; text-align: left; border: none; outline: none; transition: 0.4s; font-size: 16px;';
+								accordion.style = 'cursor: pointer; padding: 10px; width: 100%; background: #f6f8ff; text-align: left; border: none; outline: none; font-size: 16px;';
 								accordion.id = 'accordion';
 								if (recipients[i].name != null) {
-									accordion.innerHTML += recipients[i].name;
+									if (recipients[i].name.length > 25) {
+										accordion.innerHTML += recipients[i].name.slice(0, 24);
+										accordion.innerHTML += '...';
+									} else {
+										accordion.innerHTML += recipients[i].name.replace("\"", "");
+									}
 								} else {
-									accordion.innerHTML += recipients[i].emailAddress;
+									if (recipients[i].emailAddress.length > 24) {
+										accordion.innerHTML += recipients[i].emailAddress.slice(0, 24);
+										accordion.innerHTML += '...'
+									} else {
+										accordion.innerHTML += recipients[i].emailAddress;
+									}
 								}
+								accordion.addEventListener("mouseover", function() {
+									accordion.style.backgroundColor = "#e8e9f5";
+								})
+								accordion.addEventListener("mouseout", function() {
+									accordion.style.backgroundColor = "#f6f8ff";
+								})
+								let contain = document.createElement('div');
+								contain.style = 'position: relative; float: left; padding-right: 6px';
+								contain.appendChild(radarChart(radarProfile, 20));
+								accordion.prepend(contain);
 
 								// Downarrow on accordion display
 								let downarrow = document.createElement('img');
 								downarrow.src = 'https://www.flaticon.com/svg/static/icons/svg/54/54785.svg';
-								downarrow.style = 'width: 10px; height: 10px; position: relative; float: right; padding-right: 3px; padding-top: 5px; display: block; float: right;';
+								downarrow.style = 'width: 10px; height: 10px; position: relative; float: right; padding-right: 3px; padding-top: 5px; display: block;';
 								accordion.appendChild(downarrow);
 
 								// Uparrow on accordion withdrawal
 								let uparrow = document.createElement('img');
 								uparrow.src = 'https://www.flaticon.com/svg/static/icons/svg/54/54817.svg';
-								uparrow.style = 'width: 10px; height: 10px; position: relative; float: right; padding-right: 3px; padding-top: 5px; display: none; float: right;';
+								uparrow.style = 'width: 10px; height: 10px; position: relative; float: right; padding-right: 3px; padding-top: 5px; display: none;';
 								accordion.appendChild(uparrow);
-
-								// Make mock profile
-								let mockProfile = makeProfile();
 											
 								let panel = document.createElement('div');
 								panel.style = 'padding: 10px; display: none; overflow: hidden; font-size: 12px;';
 								// Code to display a user's email: panel.innerHTML += recipients[i].emailAddress;
 								panel.appendChild(renderTable(mockProfile));
-								panel.appendChild(renderProfile(mockProfile));
+								panel.appendChild(renderProfile(mockProfile, 200, 30));
 								panel.appendChild(renderShareButton());
 
 								// Listen for button click
@@ -539,104 +739,69 @@ Promise.all([
 
 				function renderHeader() {
 
+					function buttonStyle(element) {
+						element.addEventListener("mouseover", function() {
+							element.style.backgroundColor = "#e8e9f5";
+						})
+						element.addEventListener("mouseout", function() {
+							element.style.backgroundColor = "#f6f8ff";
+						})
+					}
 					// Render SparkPlug action box header
 					let actionsBoxheader = document.createElement('div');
-					actionsBoxheader.style = 'padding: 10px; cursor: move; z-index: 30000000000; background-color: #f6f8ff; position: fixed; border-bottom: 1px solid grey;';
-					let herrmannIcon = document.createElement('img');
+					actionsBoxheader.style = 'padding: 10px; cursor: move; z-index: 30000000000; background-color: #f6f8ff; position: fixed; border-radius: 8px 8px 0px 0px';
+					actionsBoxheader.id = 'actionsBoxheader';
+
 					// add Herrmann icon
-					herrmannIcon.src = 'https://i.ibb.co/xzs5xw7/herrmann-nc-squarelogo-1525363720650.png';
+					let herrmannIcon = document.createElement('img');
+					herrmannIcon.src = 'https://i.ibb.co/LQKfBwk/herrmann-Logo.png';
 					herrmannIcon.id = "herrmannIcon";
 					herrmannIcon.onclick = function() {
 						window.location.href = 'https://www.thinkherrmann.com/';
 					}
-					herrmannIcon.style = 'width: 18px; height: 18px; float: left; cursor: pointer; padding-right: 5px; padding-top: 2px;';
+					herrmannIcon.style = 'width: 18px; height: 18px; float: left; cursor: pointer; padding-right: 5px; padding-top: 5px; padding-left: 2px;';
 					actionsBoxheader.prepend(herrmannIcon);
 					actionsBoxheader.innerHTML += 'Herrmann SparkPlug';
-					actionsBoxheader.id = 'actionsBoxheader';
 					actionsBox.prepend(actionsBoxheader);
-
-					// Add additional actions icon to header
-					let actionsContain = document.createElement('div');
-					let actions = document.createElement('img');
-					actions.src = 'https://i.ibb.co/LhWz2qK/61140.png';
-					actions.id = 'actionsIcon';
-					actions.style = 'width: 15px; height: 15px;';
-					actionsContain.style = 'margin-left: 55px; cursor: pointer; padding-top: 3px; display: inline-block;';
-					actionsContain.appendChild(actions);
-					actionsBoxheader.appendChild(actionsContain);
-
-					// Style dropdown actions menu
-					let dropdown = document.createElement('div');
-					dropdown.style = 'display: none; top: 44px; width: 100px; height: 60px; right: 30px; border-radius: 4px; position: absolute; background-color: #ffffff; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 40000000000000;';
-					actionsContain.appendChild(dropdown);
-
-					// Log Out button
-					let logOutContain = document.createElement('div');
-					logOutContain.style = 'position: relative; width: 90px; display: flex; border-bottom: 1px solid grey; padding: 5px;';
-					let logOutIcon = document.createElement('img');
-					logOutIcon.src = 'https://www.flaticon.com/svg/static/icons/svg/64/64572.svg';
-					logOutIcon.style = 'width: 15px; height: 15px; padding-top: 2px; padding-right: 10px; padding-left: 3px;';
-					logOutContain.appendChild(logOutIcon);
-					let logOut = document.createElement('div');
-					logOut.innerHTML = 'Log Out';
-					logOutContain.appendChild(logOut);
-					dropdown.appendChild(logOutContain);
-					
-					// Listen for log out click and return to log in page
-					logOutContain.addEventListener("click", function() {
-						actionsBox.innerHTML = '';
-						renderHeader();
-						renderLogIn();
-						dropdown.style.display = "none";
-					});
 
 					// Reload button
 					let reloadContain = document.createElement('div');
-					reloadContain.style = 'position: relative; width: 90px; display: flex; padding: 5px;';
+					reloadContain.style = 'margin-left: 35px; cursor: pointer; padding-top: 6px; padding-left: 6px; padding-right: 6px; padding-bottom: 2px; display: inline-block; border-radius: 4px;';
 					let reloadIcon = document.createElement('img');
 					reloadIcon.src = 'https://www.flaticon.com/svg/static/icons/svg/860/860822.svg';
-					reloadIcon.style = 'width: 15px; height: 15px; padding-top: 2px; padding-right: 10px; padding-left: 3px;';
+					reloadIcon.style = 'width: 15px; height: 15px;';
 					reloadContain.appendChild(reloadIcon);
 					let reload = document.createElement('div');
-					reload.innerHTML = 'Refresh'
 					reloadContain.appendChild(reload);
-					dropdown.appendChild(reloadContain);
-
+					buttonStyle(reloadContain);
 					// Listen for refresh click and re-render current page
 					reloadContain.addEventListener("click", function() {
 						if (document.getElementById('spark') != null) {
 							actionsBox.innerHTML = '';
-							//actionsBox.appendChild(actionsBoxheader);
 							renderHeader();
 							renderSpark();
 						} else {
 							actionsBox.innerHTML = '';
-							//actionsBox.appendChild(actionsBoxheader);
 							renderHeader();
 							renderLogIn();
 						}
 					});
-
-					// Listen for actions box clicks
-					actions.addEventListener("click", function() {
-						this.classList.toggle("active");
-						if (dropdown.style.display === "block") {
-							dropdown.style.display = "none";
-						} else {
-							dropdown.style.display = "block";
-						}
-					});
+					actionsBoxheader.appendChild(reloadContain);
 
 					// Add close icon to header
+					let closeContain = document.createElement('div');
+					closeContain.style = 'float: right; cursor: pointer; display: inline-block; border-radius: 6px; padding-top: 6px; padding-bottom: 2px; padding-left: 6px; padding-right: 5px;';
 					let close = document.createElement('img');
 					close.src = 'https://i.ibb.co/zF0V25b/Full-Rounded-Cancel-512.png;';
 					close.id = 'closeIcon';
-					close.style = 'width: 15px; height: 15px; float: right; cursor: pointer; padding-top: 3px; padding-left: 4px;';
-					actionsBoxheader.appendChild(close);
+					close.style = 'width: 15px; height: 15px;';
+					closeContain.appendChild(close);
+					buttonStyle(closeContain);
 					// listen for click
-					close.addEventListener("click", function() {
+					closeContain.addEventListener("click", function() {
 						this.parentElement.parentElement.style.display = 'none';
 					});
+					actionsBoxheader.appendChild(closeContain);
 
 					// Handle action box move event
 					function dragElement(elmnt) {
@@ -667,8 +832,21 @@ Promise.all([
 							pos3 = e.clientX;
 							pos4 = e.clientY;
 							// set the element's new position
-							elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-							elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+							let headerHeight = 42;	
+							if (elmnt.offsetTop - pos2 < 0) {
+								elmnt.style.top = 0 + "px";
+							} else if (elmnt.offsetTop - pos2 > window.innerHeight - elmnt.offsetHeight) {
+								elmnt.style.top = (window.innerHeight - elmnt.offsetHeight) + "px";	
+							} else {
+								elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+							}
+							if (elmnt.offsetLeft - pos1 < 0) {
+								elmnt.style.left = 0 + "px";
+							} else if (elmnt.offsetLeft - pos1 > window.innerWidth - elmnt.offsetWidth) {
+								elmnt.style.left = (window.innerWidth - elmnt.offsetWidth) + "px";	
+							} else {
+								elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+							}
 						}
 						function closeDragElement() {
 							// stop moving when mouse button is released
@@ -679,9 +857,16 @@ Promise.all([
 					dragElement(document.getElementById("actionsBox"));
 				}
 
-				// Upon opening the SparkPlug, render the log in page
+				/* 
+					Change what is rendered below
+
+				    	Calling renderLogIn() first will open the dialog with the login page
+					
+					This will likely need to become a Stack as the SparkPlug gets more complex
+				*/
+				
 				renderHeader();
-				renderLogIn();
+				renderSpark();
 			},
 		});
 	});
