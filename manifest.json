@@ -7,7 +7,7 @@
       "matches": [
         "https://mail.google.com/*"
       ],
-      "js": ["inboxsdk.js","content.js","loader.js"],
+      "js": ["inboxsdk.js","content.js"],
       "run_at": "document_end"
     }
   ],
