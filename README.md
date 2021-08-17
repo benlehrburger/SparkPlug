@@ -1,7 +1,5 @@
 # SparkPlug
-UI for SparkPlug browser extension; currently compatible with only Gmail.
-Functionality soon to be extended across other communications platforms.
-SparkPlug not yet hooked up to HBDI database; updates to come shortly.
+UI for SparkPlug browser extension; currently compatible with Gmail. Linked to a natural language classifier that labels an email according to its writer's thinking preferences.
 
 # Instructions
 To use SparkPlug, download code base and add as an unpacked extension in your preferred browser.
