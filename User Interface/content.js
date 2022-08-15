@@ -1,3 +1,6 @@
+// Main UI for Herrmann SparkPlug
+// All UI is contained in this file to make it compatible with InboxSDK
+
 Promise.all([
 	InboxSDK.load('1', 'sdk_SparkPlug_f529ba8ded')
 ])
